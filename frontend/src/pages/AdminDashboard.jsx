@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { Loader2, LogOut, LayoutDashboard, Home, Globe } from 'lucide-react';
+import { Loader2, LogOut, LayoutDashboard, Globe, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SectionForm from '../components/admin/SectionForm';
+import ProjectManager from '../components/admin/ProjectManager';
 import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
@@ -12,7 +13,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('hero');
   const navigate = useNavigate();
 
-  const sections = ['hero', 'overview', 'connectivity', 'amenities', 'about', 'updates', 'faqs'];
+  const contentSections = ['hero', 'overview', 'connectivity', 'amenities', 'about', 'updates', 'faqs', 'ourStory', 'ourImpact'];
 
   useEffect(() => {
     fetchContent();
@@ -38,6 +39,22 @@ export default function AdminDashboard() {
     navigate('/admin/login');
   };
 
+  const getSectionLabel = (section) => {
+    const labels = {
+      hero: 'Hero',
+      overview: 'Overview',
+      connectivity: 'Connectivity',
+      amenities: 'Amenities',
+      about: 'About',
+      updates: 'Updates',
+      faqs: 'FAQs',
+      ourStory: 'Our Story',
+      ourImpact: 'Our Impact',
+      projects: 'Projects',
+    };
+    return labels[section] || section;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 relative z-50">
@@ -56,22 +73,37 @@ export default function AdminDashboard() {
             <span>Panel</span>
           </h2>
         </div>
-        <div className="flex-1 py-6">
+        <div className="flex-1 py-6 overflow-y-auto">
           <p className="px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">Edit Sections</p>
           <nav className="space-y-1 px-4">
-            {sections.map((section) => (
+            {contentSections.map((section) => (
               <button
                 key={section}
                 onClick={() => setActiveTab(section)}
-                className={`w-full text-left px-4 py-3 rounded-lg capitalize transition-colors font-medium ${
+                className={`w-full text-left px-4 py-3 rounded-lg transition-colors font-medium ${
                   activeTab === section 
                     ? 'bg-primary text-white' 
                     : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                 }`}
               >
-                {section}
+                {getSectionLabel(section)}
               </button>
             ))}
+          </nav>
+
+          <p className="px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 mt-8">Manage</p>
+          <nav className="space-y-1 px-4">
+            <button
+              onClick={() => setActiveTab('projects')}
+              className={`w-full text-left px-4 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2 ${
+                activeTab === 'projects' 
+                  ? 'bg-emerald-600 text-white' 
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+              }`}
+            >
+              <Building2 size={16} />
+              <span>Projects</span>
+            </button>
           </nav>
         </div>
         <div className="p-4 border-t border-slate-800 space-y-2">
@@ -97,12 +129,16 @@ export default function AdminDashboard() {
             <p className="text-slate-500 mt-2">Any changes saved here will reflect immediately on the live website.</p>
           </header>
           
-          {content && (
-            <SectionForm 
-              key={activeTab} // Force re-render on tab change to load fresh initialData
-              section={activeTab} 
-              initialData={content[activeTab]} 
-            />
+          {activeTab === 'projects' ? (
+            <ProjectManager />
+          ) : (
+            content && (
+              <SectionForm 
+                key={activeTab}
+                section={activeTab} 
+                initialData={content[activeTab]} 
+              />
+            )
           )}
         </div>
       </main>
